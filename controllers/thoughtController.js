@@ -28,8 +28,8 @@ module.exports = {
                     { new: true }
                 );
             })
-            .then((user) =>
-                !user
+            .then((thought) =>
+                !thought
                     ? res
                         .status(404)
                         .json({ message: 'Thought created, but found no user with that ID' })
@@ -50,7 +50,7 @@ module.exports = {
             .then((thought) =>
                 !thought
                     ? res.status(404).json({ message: 'No thought with this id!' })
-                    : res.json(user)
+                    : res.json(thought)
             )
             .catch((err) => {
                 console.log(err);
@@ -67,5 +67,25 @@ module.exports = {
             )
             .then(() => res.json({ message: 'Thought and associated reactions deleted!' }))
             .catch((err) => res.status(500).json(err));
+    },
+
+    // create a new reaction
+    createReaction(req, res) {
+        Thought.findOneAndUpdate(
+            { _id: req.body.thoughtId },
+            { $addToSet: { reactions: req.body } },
+            { new: true }
+        )
+            .then((thought) =>
+                !thought
+                    ? res
+                        .status(404)
+                        .json({ message: 'Reaction created, but found no thought with that ID' })
+                    : res.json(thought)
+            )
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
     },
 };

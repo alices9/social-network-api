@@ -12,12 +12,15 @@ module.exports = {
       User.findOne({ _id: req.params.userId })
         .select('-__v')
         .populate('thoughts')
+        .populate('friends')
         .then((user) =>
           !user
             ? res.status(404).json({ message: 'No user with that ID' })
             : res.json(user)
         )
-        .catch((err) => res.status(500).json(err));
+        .catch((err) => {
+          console.log(err)
+          res.status(500).json(err)});
     },
     // create a new user
     createUser(req, res) {
@@ -53,5 +56,26 @@ module.exports = {
         .then(() => res.json({ message: 'User and associated thoughts deleted!' }))
         .catch((err) => res.status(500).json(err));
     },
+    // add friend
+    addFriend(req, res) {
+      User.findOneAndUpdate(
+        // updating the user's friends
+        { _id: req.params.userId },
+        // add friend to list from parameter
+        { $addToSet: { friends: req.params.friendId } },
+        { new: true }
+    )
+        .then((user) =>
+            !user
+                ? res
+                    .status(404)
+                    .json({ message: 'No user with that ID' })
+                : res.json(user)
+        )
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
+},
   };
   
